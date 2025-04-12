@@ -20,6 +20,7 @@ import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.layout.wrapContentSize
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.material.icons.Icons
+import androidx.compose.material.icons.automirrored.filled.ArrowBack
 import androidx.compose.material.icons.automirrored.filled.ExitToApp
 import androidx.compose.material3.Card
 import androidx.compose.material3.CardDefaults
@@ -38,9 +39,11 @@ import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import androidx.navigation.NavHostController
+import androidx.navigation.NavType.Companion.IntType
 import androidx.navigation.compose.NavHost
 import androidx.navigation.compose.composable
 import androidx.navigation.compose.rememberNavController
+import androidx.navigation.navArgument
 
 
 class MainActivity : ComponentActivity() {
@@ -60,8 +63,13 @@ fun Navigation() {
         composable("Main page") {
             App(navController)
         }
-        composable("Table Screen") {
-            TableScreen()
+        composable(
+            "Table Screen/{number}",
+            arguments = listOf(navArgument("number") { type = IntType })
+
+
+        ) {
+            TableScreen(it.arguments?.getInt("number")!!, navController)
         }
 
     }
@@ -130,7 +138,7 @@ fun App(navController: NavHostController) {
 
                             Box(modifier = Modifier.fillMaxSize()) {
                                 Card(
-                                    onClick = { navController.navigate("Table Screen") },
+                                    onClick = { navController.navigate("Table Screen/${item + 1}") },
                                     modifier = Modifier.fillMaxWidth(),
                                     shape = CardDefaults.elevatedShape,
                                     colors = CardDefaults.cardColors(
@@ -162,7 +170,7 @@ fun App(navController: NavHostController) {
 }
 
 @Composable
-fun TableScreen() {
+fun TableScreen(number: Int, navController: NavHostController) {
     val context = LocalContext.current
     Box(
         modifier = Modifier
@@ -180,6 +188,13 @@ fun TableScreen() {
                 verticalAlignment = Alignment.CenterVertically,
                 horizontalArrangement = Arrangement.Center
             ) {
+                IconButton(onClick = { navController.navigate("Main page") }) {
+                    Icon(
+                        imageVector = Icons.AutoMirrored.Filled.ArrowBack,
+                        contentDescription = "Exit App",
+                        modifier = Modifier.size(30.dp)
+                    )
+                }
                 Spacer(modifier = Modifier.weight(1f))
                 Text(
                     "Table App for Kids",
@@ -198,10 +213,11 @@ fun TableScreen() {
                     )
                 }
             }
+            Spacer(modifier = Modifier.height(100.dp))
 
             for (i in 1..10) {
                 Text(
-                    "1 x $i = ${i * 1}",
+                    "$number x $i = ${number * i}",
                     modifier = Modifier
                         .fillMaxWidth()
                         .padding(vertical = 5.dp),
@@ -230,6 +246,6 @@ fun AppPreview() {
 @Preview(showBackground = true)
 @Composable
 fun TablePreview() {
-    TableScreen()
+    TableScreen(3, rememberNavController())
 }
 
